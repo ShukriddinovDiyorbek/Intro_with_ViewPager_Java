@@ -7,8 +7,8 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_intro"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vp_intro"
         android:layout_width="match_parent"
         android:layout_height="550dp" />
 
@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="30dp"
-                android:backgroundTint="#2f84f5"
+                android:backgroundTint="@color/blue"
                 android:paddingVertical="13dp"
                 android:text="Get started"
                 android:textSize="14sp"

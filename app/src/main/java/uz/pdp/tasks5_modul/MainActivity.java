@@ -4,22 +4,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.tabs.TabLayout;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
-    private MainAdapter adapter;
     private ArrayList<Page> pages;
+    private ViewPager viewPager;
     private TextView tv_skip;
     private Button btn_start;
-    private GridLayoutManager gridLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,16 +32,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        recyclerView = findViewById(R.id.rv_intro);
-
-        gridLayoutManager = new GridLayoutManager(this, 1, GridLayoutManager.HORIZONTAL, false) {
-            @Override
-            public boolean canScrollHorizontally() {
-                return true;
-            }
-        };
-        recyclerView.setLayoutManager(gridLayoutManager);
-
+        viewPager = findViewById(R.id.vp_intro);
+        TabLayout tabLayout = findViewById(R.id.tab_intro);
         tv_skip = findViewById(R.id.tv_skip);
         btn_start = findViewById(R.id.btn_start);
 
@@ -48,33 +42,45 @@ public class MainActivity extends AppCompatActivity {
 
         refreshAdapter();
 
+        tabLayout.setupWithViewPager(viewPager);
+
         controlPage();
-
-    }
-
-    private void controlPage() {
-        tv_skip.setOnClickListener(v -> {
-            if (gridLayoutManager.findLastCompletelyVisibleItemPosition() < adapter.getItemCount() - 1) {
-                gridLayoutManager.scrollToPosition(gridLayoutManager.findLastCompletelyVisibleItemPosition() + 1);
-            }
-        });
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (gridLayoutManager.findLastCompletelyVisibleItemPosition() == adapter.getItemCount() - 1) {
-                    btn_start.setVisibility(View.VISIBLE);
-                } else {
-                    btn_start.setVisibility(View.GONE);
-                }
-            }
-        });
     }
 
     private void refreshAdapter() {
-        adapter = new MainAdapter(pages);
-        recyclerView.setAdapter(adapter);
+        PagerAdapter pagerAdapter = new PageAdapter(pages, this);
+        viewPager.setAdapter(pagerAdapter);
+    }
+
+    private void controlButton(int position) {
+        if (position != 2) {
+            btn_start.setVisibility(View.GONE);
+            tv_skip.setVisibility(View.VISIBLE);
+        } else {
+            tv_skip.setVisibility(View.GONE);
+            btn_start.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void controlPage() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                controlButton(position);
+
+                tv_skip.setOnClickListener(v -> {
+                    viewPager.setCurrentItem(position + 1);
+                });
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
     }
 
     private void addPages() {
